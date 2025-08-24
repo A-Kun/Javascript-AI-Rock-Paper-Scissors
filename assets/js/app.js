@@ -9,31 +9,8 @@ let winningMessage = '';
 const gameArea = document.createElement('div');
 gameArea.id = 'game-area';
 	const headerOne = document.createElement('h1');
-	headerOne.innerText = 'Javascript AI Rock Paper Scissors';
+	headerOne.innerText = 'Game Count: 0';
 	gameArea.append(headerOne);
-
-	const scoreBoard = document.createElement('div');
-	scoreBoard.id = 'score-board';
-		const scoreBoardPlayerP = document.createElement('p');
-		scoreBoardPlayerP.innerText = 'Player';
-		scoreBoard.append(scoreBoardPlayerP);
-
-		const playerScore = document.createElement('span');
-		playerScore.id = 'player-score';
-		playerScore.className = 'score';
-		playerScore.innerText = 0;
-		scoreBoardPlayerP.append(playerScore);
-
-		const scoreBoardAiP = document.createElement('p');
-		scoreBoardAiP.innerText = 'Computer';
-		scoreBoard.append(scoreBoardAiP);
-
-		const aiScore = document.createElement('span');
-		aiScore.id = 'ai-score';
-		aiScore.className = 'score';
-		aiScore.innerText = 0;
-		scoreBoardAiP.append(aiScore);
-	gameArea.append(scoreBoard);
 
 	const playerBtnArea = document.createElement('div');
 	playerBtnArea.id = 'player-btn-area';
@@ -131,72 +108,46 @@ function playerInput(){
 	this.className = 'btn-active';
 	playerChoice = parseInt(choice);
 	gameCount++;
-	setTimeout(aiPrediction, 2000);
-	setTimeout(checkWin, 3000);
+	aiPrediction();
+	displayChoice();
 }
 
 function prepareData(){
 	if (pattern.length < 1) {
-		for(let i = 0; i < 10; i++){
-			pattern.push(Math.floor(Math.random() * 3) + 1);
-		}
+		pattern.push(0);
 	}
 }
 
 function updatePattern(){
-	if (gameCount !== 0){
+	if (gameCount === 2){
 		pattern.shift();
-		pattern.push(playerChoice);
 	}
+	pattern.push(playerChoice);
 }
 
 function aiPrediction(){
 	prepareData();
+	updatePattern();
+	console.log('pattern', pattern);
 	const net = new brain.recurrent.LSTMTimeStep();
 	net.train([pattern], { iterations: 100, log: false });
 	const predicted = net.run(pattern);
 	const roundedPredicted = Math.round(predicted);
 	aiChoice = (1 <= roundedPredicted && roundedPredicted <= 3)? (roundedPredicted % 3) + 1 : 1;
+	console.log('aiChoice', aiChoice);
 	document.getElementById('ai-'+stringOf(aiChoice)+'-button').className = 'btn-active';
-	updatePattern();
 }
 
-function checkWin(){
-	if(playerChoice === aiChoice){
-		winningMessage = 'draw';
-	}
-	else if(
-		(playerChoice === 1 && aiChoice === 3) ||
-		(playerChoice === 3 && aiChoice === 2) ||
-		(playerChoice === 2 && aiChoice === 1)
-	){
-		winningMessage = 'You win';
-		scorePlayer++;
-		playerBtnArea.getElementsByClassName('btn-active')[0].className = 'btn-win';
-		aiBtnArea.getElementsByClassName('btn-active')[0].className = 'btn-lose';
-	}
-	else{
-		winningMessage = 'Computer wins';
-		scoreAI++;
-		aiBtnArea.getElementsByClassName('btn-active')[0].className = 'btn-win';
-		playerBtnArea.getElementsByClassName('btn-active')[0].className = 'btn-lose';
-	}
-
-	notification.innerText = winningMessage;
-	playerScore.innerText = scorePlayer;
-	aiScore.innerText = scoreAI;
+function displayChoice(){
+	notification.innerText = 'Play ' + stringOf(aiChoice);
+	document.getElementsByTagName('h1')[0].innerText = `Game Count: ${gameCount}`;
 
 	setTimeout(function(){
 		notification.innerText = '';
-		if(winningMessage != 'draw'){
-			document.getElementsByClassName('btn-win')[0].className = 'btn';
-			document.getElementsByClassName('btn-lose')[0].className = 'btn';
-		}else{
-			document.getElementsByClassName('btn-active')[0].className = 'btn';
-			document.getElementsByClassName('btn-active')[0].className = 'btn';
-		}
+		document.getElementsByClassName('btn-active')[0].className = 'btn';
+		document.getElementsByClassName('btn-active')[0].className = 'btn';
 		setBtnEvents();
-	}, 1000);
+	}, 1500);
 }
 
 function stringOf(integer){

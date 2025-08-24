@@ -1,11 +1,6 @@
 body {
 	font-family: sans-serif;
 	margin: 0;
-	background: #1f3756;
-	color: #fff;
-	-webkit-user-select: none;
-	-moz-user-select: none;
-	-ms-user-select: none;
 	user-select: none;
 }
 
@@ -47,7 +42,6 @@ body {
 .btn, .btn-active, .btn-win, .btn-lose{
 	font-size: 100px;
 	background: transparent;
-	color: #fff;
 	padding: 25px 40px;
 	margin: 5px;
 	border: 2px solid;
